@@ -1,0 +1,14 @@
+<resources>
+
+    <!-- diraction -->
+    <string name="rockerview_center">中心</string>
+    <string name="rockerview_left">左</string>
+    <string name="rockerview_right">右</string>
+    <string name="rockerview_up">上</string>
+    <string name="rockerview_down">下</string>
+    <string name="rockerview_left_up">左上</string>
+    <string name="rockerview_right_up">右上</string>
+    <string name="rockerview_left_down">左下</string>
+    <string name="rockerview_right_down">右下</string>
+
+</resources>

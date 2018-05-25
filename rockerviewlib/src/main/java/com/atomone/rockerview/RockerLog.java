@@ -3,12 +3,13 @@ package com.atomone.rockerview;
 import android.util.Log;
 
 /**
- *
+ *@author atonOne
  */
 public class RockerLog {
 
     private static final String TAG = "RockerView";
-    private static final boolean DEBUG = true;
+
+    private static final boolean DEBUG = false;
 
     public static void i(String msg) {
         if (DEBUG) {

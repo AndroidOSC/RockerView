@@ -7,12 +7,27 @@
     tools:context=".MainActivity"
     tools:layout_editor_absoluteY="81dp">
 
+    <TextView
+        android:id="@+id/tv_direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="获取到摇动方向" />
+
+    <TextView
+        android:id="@+id/tv_angle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="24dp"
+        android:text="获取到摇动角度"
+        app:layout_constraintTop_toBottomOf="@+id/tv_direction"
+        tools:layout_editor_absoluteX="0dp" />
+
     <com.atomone.rockerview.RockerView
-        android:id="@+id/rockerView_right"
+        android:id="@+id/rockerView"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         app:areaBackground="@drawable/view_big"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
