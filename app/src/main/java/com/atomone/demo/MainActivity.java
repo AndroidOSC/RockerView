@@ -10,6 +10,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvDirection;
     private TextView tvAngle;
+    private TextView tvStrength;
 
     private RockerView rockerView;
 
@@ -20,13 +21,14 @@ public class MainActivity extends AppCompatActivity {
 
         tvDirection = findViewById(R.id.tv_direction);
         tvAngle = findViewById(R.id.tv_angle);
+        tvStrength = findViewById(R.id.tv_strength);
 
         rockerView = findViewById(R.id.rockerView);
 
         if (rockerView != null) {
             rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE);
-            rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_8);
-            rockerView.setGestureMode(RockerView.GestureMode.GESTURE_UN_CONTINUOUS);
+            rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_4_ROTATE_0);
+            rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CONTINUOU);
             rockerView.setOnShakeListener(new RockerView.OnShakeListener() {
                 @Override
                 public void onStart() {
@@ -58,6 +60,23 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFinish() {
                     tvAngle.setText(null);
+                }
+            });
+
+            rockerView.setOnStrengthChangeListener(new RockerView.onStrengthChangeListener() {
+                @Override
+                public void onStart() {
+                    tvStrength.setText(null);
+                }
+
+                @Override
+                public void strength(float strength) {
+                    tvStrength.setText("摇动强度 : " + strength);
+                }
+
+                @Override
+                public void onFinish() {
+                    tvStrength.setText(null);
                 }
             });
         }

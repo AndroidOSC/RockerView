@@ -46,6 +46,7 @@ public class RockerView extends View {
     //监听
     private OnAngleChangeListener mOnAngleChangeListener;
     private OnShakeListener mOnShakeListener;
+    private onStrengthChangeListener mOnStrengthChangeListener;
 
     //回调模式
     private CallBackMode mCallBackMode = CallBackMode.CALL_BACK_MOVE;
@@ -340,8 +341,11 @@ public class RockerView extends View {
         float lenY = (float) (touchPoint.y - centerPoint.y);
         // 两点距离
         float lenXY = (float) Math.sqrt((double) (lenX * lenX + lenY * lenY));
-
         RockerLog.i("getRockerPositionPoint: lenXY :" + lenXY);
+
+        // 摇杆有效活动距离
+        float strangthLen = regionRadius - (rockerRadius * 2);
+        RockerLog.i("getRockerPositionPoint: strangthLen :" + strangthLen);
 
         // 计算弧度
         double radian = Math.acos(lenX / lenXY) * (touchPoint.y < centerPoint.y ? -1 : 1);
@@ -353,8 +357,17 @@ public class RockerView extends View {
             double angle = radian2Angle(radian);
             RockerLog.i("getRockerPositionPoint: 角度 :" + angle);
             // 回调 返回参数
-            callBack(angle);
+            callBackShake(angle);
+            float calcStrength = (lenXY - rockerRadius) / strangthLen;
+            if (calcStrength > 1) {
+                callBackStrength(1F);
+            } else {
+                callBackStrength(calcStrength);
+            }
+        } else {
+            callBackStrength(0F);
         }
+
 
         // 触摸位置在可活动范围内
         if (lenXY + rockerRadius <= regionRadius) {
@@ -402,6 +415,21 @@ public class RockerView extends View {
         if (null != mOnShakeListener) {
             mOnShakeListener.onStart();
         }
+        if (null != mOnStrengthChangeListener) {
+            mOnStrengthChangeListener.onStart();
+        }
+    }
+
+
+    /**
+     * 强度回调
+     *
+     * @param strength 摇动强度 [0,1]
+     */
+    public void callBackStrength(float strength) {
+        if (null != mOnStrengthChangeListener) {
+            mOnStrengthChangeListener.strength(strength);
+        }
     }
 
     /**
@@ -409,7 +437,7 @@ public class RockerView extends View {
      *
      * @param angle 摇动角度
      */
-    private void callBack(double angle) {
+    private void callBackShake(double angle) {
         if (null != mOnAngleChangeListener) {
             mOnAngleChangeListener.angle(angle);
         }
@@ -435,21 +463,6 @@ public class RockerView extends View {
                         }
                         break;
                     case DIRECTION_4_ROTATE_0:// 四个方向
-                        if (ANGLE_4D_OF_0P <= angle && ANGLE_4D_OF_1P > angle) {
-                            // 右下
-                            mOnShakeListener.direction(Direction.DIRECTION_DOWN_RIGHT, getDirectionInfo(Direction.DIRECTION_DOWN_RIGHT));
-                        } else if (ANGLE_4D_OF_1P <= angle && ANGLE_4D_OF_2P > angle) {
-                            // 左下
-                            mOnShakeListener.direction(Direction.DIRECTION_DOWN_LEFT, getDirectionInfo(Direction.DIRECTION_DOWN_LEFT));
-                        } else if (ANGLE_4D_OF_2P <= angle && ANGLE_4D_OF_3P > angle) {
-                            // 左上
-                            mOnShakeListener.direction(Direction.DIRECTION_UP_LEFT, getDirectionInfo(Direction.DIRECTION_UP_LEFT));
-                        } else if (ANGLE_4D_OF_3P <= angle && ANGLE_360 > angle) {
-                            // 右上
-                            mOnShakeListener.direction(Direction.DIRECTION_UP_RIGHT, getDirectionInfo(Direction.DIRECTION_DOWN_RIGHT));
-                        }
-                        break;
-                    case DIRECTION_4_ROTATE_45:// 四个方向 旋转45度
                         if (ANGLE_0 <= angle && ANGLE_ROTATE45_4D_OF_0P > angle || ANGLE_ROTATE45_4D_OF_3P <= angle && ANGLE_360 > angle) {
                             // 右
                             mOnShakeListener.direction(Direction.DIRECTION_RIGHT, getDirectionInfo(Direction.DIRECTION_RIGHT));
@@ -462,6 +475,22 @@ public class RockerView extends View {
                         } else if (ANGLE_ROTATE45_4D_OF_2P <= angle && ANGLE_ROTATE45_4D_OF_3P > angle) {
                             // 上
                             mOnShakeListener.direction(Direction.DIRECTION_UP, getDirectionInfo(Direction.DIRECTION_UP));
+                        }
+                        break;
+                    case DIRECTION_4_ROTATE_45:// 四个方向 旋转45度
+
+                        if (ANGLE_4D_OF_0P <= angle && ANGLE_4D_OF_1P > angle) {
+                            // 右下
+                            mOnShakeListener.direction(Direction.DIRECTION_DOWN_RIGHT, getDirectionInfo(Direction.DIRECTION_DOWN_RIGHT));
+                        } else if (ANGLE_4D_OF_1P <= angle && ANGLE_4D_OF_2P > angle) {
+                            // 左下
+                            mOnShakeListener.direction(Direction.DIRECTION_DOWN_LEFT, getDirectionInfo(Direction.DIRECTION_DOWN_LEFT));
+                        } else if (ANGLE_4D_OF_2P <= angle && ANGLE_4D_OF_3P > angle) {
+                            // 左上
+                            mOnShakeListener.direction(Direction.DIRECTION_UP_LEFT, getDirectionInfo(Direction.DIRECTION_UP_LEFT));
+                        } else if (ANGLE_4D_OF_3P <= angle && ANGLE_360 > angle) {
+                            // 右上
+                            mOnShakeListener.direction(Direction.DIRECTION_UP_RIGHT, getDirectionInfo(Direction.DIRECTION_UP_RIGHT));
                         }
                         break;
                     case DIRECTION_8:// 八个方向
@@ -599,8 +628,7 @@ public class RockerView extends View {
     }
 
     /**
-     * 回调
-     * 结束
+     * 回调结束
      */
     private void callBackFinish() {
         isContinuous = false;
@@ -610,6 +638,9 @@ public class RockerView extends View {
         }
         if (null != mOnShakeListener) {
             mOnShakeListener.onFinish();
+        }
+        if (null != mOnStrengthChangeListener) {
+            mOnStrengthChangeListener.onFinish();
         }
     }
 
@@ -712,6 +743,39 @@ public class RockerView extends View {
         DIRECTION_DOWN_LEFT, // 左下
         DIRECTION_DOWN_RIGHT, // 右下
         DIRECTION_CENTER // 中间
+    }
+
+    /**
+     * 摇动强度的监听接口
+     */
+    public interface onStrengthChangeListener {
+        /**
+         * 开始
+         */
+        void onStart();
+
+        /**
+         * 摇杆角度变化
+         *
+         * @param strength 强度 [0-1]
+         */
+        void strength(float strength);
+
+        /**
+         * 结束
+         */
+        void onFinish();
+    }
+
+    /**
+     * 添加摇杆摇动强度的监听
+     *
+     * @param listener 回调接口
+     */
+    public void setOnStrengthChangeListener(onStrengthChangeListener listener) {
+        if (null != listener) {
+            mOnStrengthChangeListener = listener;
+        }
     }
 
     /**

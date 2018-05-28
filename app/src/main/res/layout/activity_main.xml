@@ -20,6 +20,13 @@
         android:layout_marginTop="24dp"
         android:text="获取到摇动角度" />
 
+    <TextView
+        android:id="@+id/tv_strength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="获取到摇动强度" />
+
     <com.atomone.rockerview.RockerView
         android:id="@+id/rockerView"
         android:layout_width="200dp"
