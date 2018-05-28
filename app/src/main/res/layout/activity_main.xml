@@ -1,40 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    tools:layout_editor_absoluteY="81dp">
+    android:orientation="vertical"
+    tools:context="com.atomone.demo.MainActivity">
 
     <TextView
         android:id="@+id/tv_direction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:text="获取到摇动方向" />
 
     <TextView
         android:id="@+id/tv_angle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_marginTop="24dp"
-        android:text="获取到摇动角度"
-        app:layout_constraintTop_toBottomOf="@+id/tv_direction"
-        tools:layout_editor_absoluteX="0dp" />
+        android:text="获取到摇动角度" />
 
     <com.atomone.rockerview.RockerView
         android:id="@+id/rockerView"
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:layout_marginTop="24dp"
         app:areaBackground="@drawable/view_big"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:rockerBackground="@drawable/view_small"
         app:rockerRadius="30dp" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
