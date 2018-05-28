@@ -17,7 +17,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-
 /**
  * @author atomOne
  */
@@ -691,7 +690,7 @@ public class RockerView extends View {
     /**
      * 设置支持监听模式
      *
-     * @param mode
+     * @param mode 回调模式
      */
     public void setDirectionMode(DirectionMode mode) {
         if (null != mode) {
@@ -786,7 +785,7 @@ public class RockerView extends View {
     /**
      * Drawable 转 Bitmap
      *
-     * @param drawable
+     * @param drawable 要转化bitmap的drawable
      * @return
      */
     private Bitmap drawable2Bitmap(Drawable drawable) {
@@ -806,7 +805,7 @@ public class RockerView extends View {
     /**
      * 方向的描述内容
      *
-     * @param direction
+     * @param direction 方向
      * @return
      */
     private String getDirectionInfo(RockerView.Direction direction) {

@@ -3,10 +3,10 @@ package com.atomone.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
 import com.atomone.rockerview.RockerView;
 
 public class MainActivity extends AppCompatActivity {
-
 
     private TextView tvDirection;
     private TextView tvAngle;
