@@ -103,6 +103,8 @@ public class RockerView extends View {
 
     //起始点是否在摇杆起始位置
     private boolean isContinuous = false;
+    //记录摇杆是否开始控制
+    private boolean isStart = false;
 
     public RockerView(Context context) {
         this(context, null);
@@ -631,16 +633,18 @@ public class RockerView extends View {
      * 回调结束
      */
     private void callBackFinish() {
-        isContinuous = false;
-        tempDirection = Direction.DIRECTION_CENTER;
-        if (null != mOnAngleChangeListener) {
-            mOnAngleChangeListener.onFinish();
-        }
-        if (null != mOnShakeListener) {
-            mOnShakeListener.onFinish();
-        }
-        if (null != mOnStrengthChangeListener) {
-            mOnStrengthChangeListener.onFinish();
+        if(isContinuous){
+            isContinuous = false;
+            tempDirection = Direction.DIRECTION_CENTER;
+            if (null != mOnAngleChangeListener) {
+                mOnAngleChangeListener.onFinish();
+            }
+            if (null != mOnShakeListener) {
+                mOnShakeListener.onFinish();
+            }
+            if (null != mOnStrengthChangeListener) {
+                mOnStrengthChangeListener.onFinish();
+            }
         }
     }
 
@@ -825,7 +829,8 @@ public class RockerView extends View {
         /**
          * 摇动方向
          *
-         * @param direction 方向
+         * @param direction     方向
+         * @param directionInfo 方向描述
          */
         void direction(Direction direction, String directionInfo);
 
