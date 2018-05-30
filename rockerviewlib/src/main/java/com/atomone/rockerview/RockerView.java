@@ -103,8 +103,6 @@ public class RockerView extends View {
 
     //起始点是否在摇杆起始位置
     private boolean isContinuous = false;
-    //记录摇杆是否开始控制
-    private boolean isStart = false;
 
     public RockerView(Context context) {
         this(context, null);
