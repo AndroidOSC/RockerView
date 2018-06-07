@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,11 +25,11 @@ import android.view.View;
 public class RockerView extends View {
 
     //默认大小
-    private static final int DEFAULT_SIZE = 400;
+    private static final int DEFAULT_SIZE          = 400;
     private static final int DEFAULT_ROCKER_RADIUS = DEFAULT_SIZE / 8;
 
     //画布实际大小
-    private int measuredWidth = DEFAULT_SIZE;
+    private int measuredWidth  = DEFAULT_SIZE;
     private int measuredHeight = DEFAULT_SIZE;
 
     //画笔
@@ -44,35 +46,35 @@ public class RockerView extends View {
     private int mRockerRadius;
 
     //监听
-    private OnAngleChangeListener mOnAngleChangeListener;
-    private OnShakeListener mOnShakeListener;
+    private OnAngleChangeListener    mOnAngleChangeListener;
+    private OnShakeListener          mOnShakeListener;
     private onStrengthChangeListener mOnStrengthChangeListener;
 
     //回调模式
-    private CallBackMode mCallBackMode = CallBackMode.CALL_BACK_MOVE;
+    private CallBackMode  mCallBackMode  = CallBackMode.CALL_BACK_MOVE;
     private DirectionMode mDirectionMode = DirectionMode.DIRECTION_8;
-    private GestureMode mGestureMode = GestureMode.GESTURE_CONTINUOU;
-    private Direction tempDirection = Direction.DIRECTION_CENTER;
+    private GestureMode   mGestureMode   = GestureMode.GESTURE_CONTINUOU;
+    private Direction     tempDirection  = Direction.DIRECTION_CENTER;
 
     // 角度
-    private static final double ANGLE_0 = 0;
-    private static final double ANGLE_360 = 360;
+    private static final double ANGLE_0                   = 0;
+    private static final double ANGLE_360                 = 360;
     // 360°水平方向平分2份的边缘角度
     private static final double ANGLE_HORIZONTAL_2D_OF_0P = 90;
     private static final double ANGLE_HORIZONTAL_2D_OF_1P = 270;
     // 360°垂直方向平分2份的边缘角度
-    private static final double ANGLE_VERTICAL_2D_OF_0P = 0;
-    private static final double ANGLE_VERTICAL_2D_OF_1P = 180;
+    private static final double ANGLE_VERTICAL_2D_OF_0P   = 0;
+    private static final double ANGLE_VERTICAL_2D_OF_1P   = 180;
     // 360°平分4份的边缘角度
-    private static final double ANGLE_4D_OF_0P = 0;
-    private static final double ANGLE_4D_OF_1P = 90;
-    private static final double ANGLE_4D_OF_2P = 180;
-    private static final double ANGLE_4D_OF_3P = 270;
+    private static final double ANGLE_4D_OF_0P            = 0;
+    private static final double ANGLE_4D_OF_1P            = 90;
+    private static final double ANGLE_4D_OF_2P            = 180;
+    private static final double ANGLE_4D_OF_3P            = 270;
     // 360°平分4份的边缘角度(旋转45度)
-    private static final double ANGLE_ROTATE45_4D_OF_0P = 45;
-    private static final double ANGLE_ROTATE45_4D_OF_1P = 135;
-    private static final double ANGLE_ROTATE45_4D_OF_2P = 225;
-    private static final double ANGLE_ROTATE45_4D_OF_3P = 315;
+    private static final double ANGLE_ROTATE45_4D_OF_0P   = 45;
+    private static final double ANGLE_ROTATE45_4D_OF_1P   = 135;
+    private static final double ANGLE_ROTATE45_4D_OF_2P   = 225;
+    private static final double ANGLE_ROTATE45_4D_OF_3P   = 315;
 
     // 360°平分8份的边缘角度
     private static final double ANGLE_8D_OF_0P = 22.5;
@@ -85,21 +87,21 @@ public class RockerView extends View {
     private static final double ANGLE_8D_OF_7P = 337.5;
 
     // 摇杆可移动区域背景
-    private static final int AREA_BACKGROUND_MODE_PIC = 0;
-    private static final int AREA_BACKGROUND_MODE_COLOR = 1;
-    private static final int AREA_BACKGROUND_MODE_XML = 2;
+    private static final int AREA_BACKGROUND_MODE_PIC     = 0;
+    private static final int AREA_BACKGROUND_MODE_COLOR   = 1;
+    private static final int AREA_BACKGROUND_MODE_XML     = 2;
     private static final int AREA_BACKGROUND_MODE_DEFAULT = 3;
-    private int mAreaBackgroundMode = AREA_BACKGROUND_MODE_DEFAULT;
+    private              int mAreaBackgroundMode          = AREA_BACKGROUND_MODE_DEFAULT;
     private Bitmap mAreaBitmap;
-    private int mAreaColor;
+    private int    mAreaColor;
     // 摇杆背景
-    private static final int ROCKER_BACKGROUND_MODE_PIC = 4;
-    private static final int ROCKER_BACKGROUND_MODE_COLOR = 5;
-    private static final int ROCKER_BACKGROUND_MODE_XML = 6;
+    private static final int ROCKER_BACKGROUND_MODE_PIC     = 4;
+    private static final int ROCKER_BACKGROUND_MODE_COLOR   = 5;
+    private static final int ROCKER_BACKGROUND_MODE_XML     = 6;
     private static final int ROCKER_BACKGROUND_MODE_DEFAULT = 7;
-    private int mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_DEFAULT;
+    private              int mRockerBackgroundMode          = ROCKER_BACKGROUND_MODE_DEFAULT;
     private Bitmap mRockerBitmap;
-    private int mRockerColor;
+    private int    mRockerColor;
 
     //起始点是否在摇杆起始位置
     private boolean isContinuous = false;
@@ -132,6 +134,9 @@ public class RockerView extends View {
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         if (null != attrs) {
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RockerView, defStyleAttr, 0);
+
+            // 摇杆半径
+            mRockerRadius = typedArray.getDimensionPixelOffset(R.styleable.RockerView_rockerRadius, DEFAULT_ROCKER_RADIUS);
             //可移动区域的背景
             Drawable areaBackground = typedArray.getDrawable(R.styleable.RockerView_areaBackground);
             if (null != areaBackground) {
@@ -139,9 +144,17 @@ public class RockerView extends View {
                     //图片
                     mAreaBitmap = ((BitmapDrawable) areaBackground).getBitmap();
                     mAreaBackgroundMode = AREA_BACKGROUND_MODE_PIC;
+                } else if (areaBackground instanceof ShapeDrawable) {
+                    // XML-shape
+                    mAreaBitmap = drawable2Bitmap(areaBackground,mRockerRadius);
+                    mRockerBackgroundMode = AREA_BACKGROUND_MODE_XML;
+                } else if (areaBackground instanceof LayerDrawable) {
+                    // XML-layer
+                    mAreaBitmap = drawable2Bitmap(areaBackground,mRockerRadius);
+                    mRockerBackgroundMode = AREA_BACKGROUND_MODE_XML;
                 } else if (areaBackground instanceof GradientDrawable) {
-                    //xml
-                    mAreaBitmap = drawable2Bitmap(areaBackground);
+                    // XML-gradient
+                    mAreaBitmap = drawable2Bitmap(areaBackground,mRockerRadius);
                     mAreaBackgroundMode = AREA_BACKGROUND_MODE_XML;
                 } else if (areaBackground instanceof ColorDrawable) {
                     //色值
@@ -162,10 +175,18 @@ public class RockerView extends View {
                 if (rockerBackground instanceof BitmapDrawable) {
                     // 图片
                     mRockerBitmap = ((BitmapDrawable) rockerBackground).getBitmap();
-                    mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_PIC;
+                    mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_XML;
+                } else if (areaBackground instanceof ShapeDrawable) {
+                    // XML-shape
+                    mRockerBitmap = drawable2Bitmap(rockerBackground,mRockerRadius);
+                    mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_XML;
+                } else if (rockerBackground instanceof LayerDrawable) {
+                    // XML-layer
+                    mRockerBitmap = drawable2Bitmap(rockerBackground,mRockerRadius);
+                    mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_XML;
                 } else if (rockerBackground instanceof GradientDrawable) {
-                    // XML
-                    mRockerBitmap = drawable2Bitmap(rockerBackground);
+                    // XML-gradient
+                    mRockerBitmap = drawable2Bitmap(rockerBackground,mRockerRadius);
                     mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_XML;
                 } else if (rockerBackground instanceof ColorDrawable) {
                     // 色值
@@ -179,10 +200,6 @@ public class RockerView extends View {
                 // 没有设置摇杆背景
                 mRockerBackgroundMode = ROCKER_BACKGROUND_MODE_DEFAULT;
             }
-
-            // 摇杆半径
-            mRockerRadius = typedArray.getDimensionPixelOffset(R.styleable.RockerView_rockerRadius, DEFAULT_ROCKER_RADIUS);
-
             typedArray.recycle();
         } else {
             mAreaBackgroundMode = AREA_BACKGROUND_MODE_DEFAULT;
@@ -304,9 +321,9 @@ public class RockerView extends View {
                 // 回调 结束
                 callBackFinish();
                 moveRocker(mCenterPoint.x, mCenterPoint.y);
-//                float upX = event.getX();
-//                float upY = event.getY();
-//                RockerLog.i("onTouchEvent: 抬起位置 : x = " + upX + " y = " + upY);
+                //                float upX = event.getX();
+                //                float upY = event.getY();
+                //                RockerLog.i("onTouchEvent: 抬起位置 : x = " + upX + " y = " + upY);
                 break;
             default:
                 break;
@@ -631,7 +648,7 @@ public class RockerView extends View {
      * 回调结束
      */
     private void callBackFinish() {
-        if(isContinuous){
+        if (isContinuous) {
             isContinuous = false;
             tempDirection = Direction.DIRECTION_CENTER;
             if (null != mOnAngleChangeListener) {
@@ -855,16 +872,18 @@ public class RockerView extends View {
      * @param drawable 要转化bitmap的drawable
      * @return
      */
-    private Bitmap drawable2Bitmap(Drawable drawable) {
-        //获取 drawable 长宽
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
+    private Bitmap drawable2Bitmap(Drawable drawable,int size) {
+//        //获取 drawable 长宽
+//        int width = drawable.getIntrinsicWidth();
+//        int height = drawable.getIntrinsicHeight();
         //获取 drawable 颜色模式
         Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
         //创建bitmap
-        Bitmap bitmap = Bitmap.createBitmap(width, height, config);
+        Bitmap bitmap = Bitmap.createBitmap(size, size, config);
+        //创建对应的画布
         Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, width, height);
+        drawable.setBounds(0, 0, size, size);
+        // 把drawable 内容画到画布中
         drawable.draw(canvas);
         return bitmap;
     }

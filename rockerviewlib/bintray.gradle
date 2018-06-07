@@ -21,7 +21,7 @@ publish {
     userOrg = 'lyy'                                //bintray注册的用户名
     groupId = 'com.atomone.rockerview'             //compile引用时的第1部分groupId
     artifactId = 'recokerview'                     //compile引用时的第2部分项目名
-    publishVersion = "0.0.4"                       //compile引用时的第3部分版本号
+    publishVersion = "0.0.5"                       //compile引用时的第3部分版本号
     desc = 'rocker view 2 Android widget'          //项目简介
     website = siteUrl                              //项目地址
     licences = ["Apache-2.0"]                      //模块的licences
