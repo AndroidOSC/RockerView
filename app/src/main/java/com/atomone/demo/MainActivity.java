@@ -2,6 +2,7 @@ package com.atomone.demo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.atomone.rockerview.RockerView;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         rockerView = findViewById(R.id.rockerView);
 
         if (rockerView != null) {
-            rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE);
+            rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE_CONTINUITY);
             rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_4_ROTATE_0);
             rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CONTINUOU);
             rockerView.setOnShakeListener(new RockerView.OnShakeListener() {
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void direction(RockerView.Direction direction, String directionInfo) {
                     tvDirection.setText("摇动方向 : " + directionInfo);
+                    Log.e("MainActivity","摇动方向 : " + directionInfo);
                 }
 
                 @Override
