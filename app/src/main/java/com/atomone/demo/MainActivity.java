@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (rockerView != null) {
             rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE_CONTINUITY);
+            rockerView.setContinuityCallBackDelay(400);
             rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_4_ROTATE_0);
             rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CONTINUOU);
             rockerView.setOnShakeListener(new RockerView.OnShakeListener() {
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void direction(RockerView.Direction direction, String directionInfo) {
                     tvDirection.setText("摇动方向 : " + directionInfo);
-                    Log.e("MainActivity","摇动方向 : " + directionInfo);
+                    Log.e("MainActivity", "time:" + System.currentTimeMillis() + "摇动方向 : " + directionInfo);
                 }
 
                 @Override
