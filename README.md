@@ -13,7 +13,7 @@
 ```gradle
   implementation 'com.atomone.rockerview:recokerview:0.0.7'
 ```
-2、在activity
+2、在activity 中设置
 ```java
 rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE_CONTINUITY);
             rockerView.setContinuityCallBackDelay(400);
