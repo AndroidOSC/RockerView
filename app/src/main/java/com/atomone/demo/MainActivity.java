@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         if (rockerView != null) {
             rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MOVE);
             rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_8);
-            rockerView.setRockerBackMode(RockerView.RockerBackMode.BACK_CENTER_ORIGIN);
+            rockerView.setRockerBackMode(RockerView.RockerBackMode.BACK_NONE);
             rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CENTER_CONTINUOU);
             rockerView.setOnShakeListener(new RockerView.OnShakeListener() {
                 @Override
