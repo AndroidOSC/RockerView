@@ -27,10 +27,10 @@ public class MainActivity extends AppCompatActivity {
         rockerView = findViewById(R.id.rockerView);
 
         if (rockerView != null) {
-            rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_STATE_CHANGE_CONTINUITY);
-            rockerView.setContinuityCallBackDelay(400);
-            rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_4_ROTATE_0);
-            rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CONTINUOU);
+            rockerView.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MOVE);
+            rockerView.setDirectionMode(RockerView.DirectionMode.DIRECTION_8);
+            rockerView.setRockerBackMode(RockerView.RockerBackMode.BACK_CENTER_ORIGIN);
+            rockerView.setGestureMode(RockerView.GestureMode.GESTURE_CENTER_CONTINUOU);
             rockerView.setOnShakeListener(new RockerView.OnShakeListener() {
                 @Override
                 public void onStart() {

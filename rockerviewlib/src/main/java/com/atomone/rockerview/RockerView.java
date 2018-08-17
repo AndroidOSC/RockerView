@@ -41,9 +41,11 @@ public class RockerView extends View {
     private Paint mAreaBackgroundPaint;
     private Paint mRockerPaint;
 
-    //点
+    //控件中心点
     private Point mCenterPoint;
+    //摇杆中心点
     private Point mRockerPosition;
+    //触摸中心点
     private Point mTouchPoint;
 
     //连续触发事件(适用于方位状态改变的回调模式)
@@ -60,10 +62,11 @@ public class RockerView extends View {
     private onStrengthChangeListener mOnStrengthChangeListener;
 
     //回调模式
-    private CallBackMode  mCallBackMode  = CallBackMode.CALL_BACK_MOVE;
-    private DirectionMode mDirectionMode = DirectionMode.DIRECTION_8;
-    private GestureMode   mGestureMode   = GestureMode.GESTURE_CONTINUOU;
-    private Direction     tempDirection  = Direction.DIRECTION_CENTER;
+    private CallBackMode   mCallBackMode   = CallBackMode.CALL_BACK_MOVE;
+    private DirectionMode  mDirectionMode  = DirectionMode.DIRECTION_8;
+    private GestureMode    mGestureMode    = GestureMode.GESTURE_CENTER_CONTINUOU;
+    private Direction      tempDirection   = Direction.DIRECTION_CENTER;
+    private RockerBackMode mRockerBackMode = RockerBackMode.BACK_CENTER_ORIGIN;
 
     // 角度
     private static final double ANGLE_0                   = 0;
@@ -112,7 +115,7 @@ public class RockerView extends View {
     private Bitmap mRockerBitmap;
     private int    mRockerColor;
 
-    //起始点是否在摇杆起始位置
+    //是否开始监听
     private boolean mIsStartCallBack = false;
 
     public RockerView(Context context) {
@@ -227,9 +230,11 @@ public class RockerView extends View {
         mRockerPaint.setAntiAlias(true);
 
         // 中心点
-        mCenterPoint = new Point();
+        mCenterPoint = new Point(0, 0);
         // 摇杆位置
-        mRockerPosition = new Point();
+        mRockerPosition = new Point(0, 0);
+        // 触摸点
+        mTouchPoint = new Point(0, 0);
     }
 
     @Override
@@ -239,27 +244,24 @@ public class RockerView extends View {
         setMeasuredDimension(measureWidth, measureHeight);
     }
 
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         measuredWidth = w;
         measuredHeight = h;
+        int mCenterX = measuredWidth / 2;
+        int mCenterY = measuredHeight / 2;
+        // 中心点
+        mCenterPoint.set(mCenterX, mCenterY);
+        mRockerPosition.set(mCenterX, mCenterY);
+        // 可移动区域的半径
+        mAreaRadius = (measuredWidth <= measuredHeight) ? mCenterX : mCenterY;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        int cx = measuredWidth / 2;
-        int cy = measuredHeight / 2;
-        // 中心点
-        mCenterPoint.set(cx, cy);
-        // 可移动区域的半径
-        mAreaRadius = (measuredWidth <= measuredHeight) ? cx : cy;
-        // 摇杆位置
-        if (0 == mRockerPosition.x || 0 == mRockerPosition.y) {
-            mRockerPosition.set(mCenterPoint.x, mCenterPoint.y);
-        }
         //画摇杆区域
         if (AREA_BACKGROUND_MODE_PIC == mAreaBackgroundMode || AREA_BACKGROUND_MODE_XML == mAreaBackgroundMode) {
             Rect src = new Rect(0, 0, mAreaBitmap.getWidth(), mAreaBitmap.getHeight());
@@ -298,10 +300,10 @@ public class RockerView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:// 按下
                 // 回调 开始
-                if (mGestureMode == GestureMode.GESTURE_CONTINUOU) {
+                if (mGestureMode == GestureMode.GESTURE_CENTER_CONTINUOU) {
                     float downX = event.getX();
                     float downY = event.getY();
-                    mTouchPoint = new Point((int) downX, (int) downY);
+                    mTouchPoint.set((int) downX, (int) downY);
                     if (isInRockerCenterZone(mCenterPoint, mTouchPoint)) {
                         callBackStart();
                     }
@@ -311,12 +313,12 @@ public class RockerView extends View {
             case MotionEvent.ACTION_MOVE:// 移动
                 float moveX = event.getX();
                 float moveY = event.getY();
-                mTouchPoint = new Point((int) moveX, (int) moveY);
-                if (mGestureMode == GestureMode.GESTURE_CONTINUOU) {
+                mTouchPoint.set((int) moveX, (int) moveY);
+                if (mGestureMode == GestureMode.GESTURE_CENTER_CONTINUOU) {
                     if (mIsStartCallBack) {
                         callBackMove(mCenterPoint, mTouchPoint);
                     } else {
-                        if (isInRockerCenterZone(mCenterPoint, mTouchPoint)) {
+                        if (isInRockerCenterZone(mRockerPosition, mTouchPoint)) {
                             callBackStart();
                             callBackMove(mCenterPoint, mTouchPoint);
                         }
@@ -328,11 +330,13 @@ public class RockerView extends View {
             case MotionEvent.ACTION_UP:// 抬起
             case MotionEvent.ACTION_CANCEL:// 取消
                 // 回调 结束
-                callBackFinish();
-                moveRocker(mCenterPoint.x, mCenterPoint.y);
-                //                float upX = event.getX();
-                //                float upY = event.getY();
-                //                RockerLog.i("onTouchEvent: 抬起位置 : x = " + upX + " y = " + upY);
+                if (mIsStartCallBack) {
+                    float upX = event.getX();
+                    float upY = event.getY();
+                    mTouchPoint.set((int) upX, (int) upY);
+                    rockerBack(mCenterPoint, mTouchPoint);
+                    callBackFinish();
+                }
                 break;
             default:
                 break;
@@ -341,14 +345,36 @@ public class RockerView extends View {
     }
 
     /**
+     * 摇杆回退
+     *
+     * @param centerPoint
+     * @param touchPoint
+     */
+    private void rockerBack(Point centerPoint, Point touchPoint) {
+        if (mRockerBackMode == RockerBackMode.BACK_NONE) {
+            Point point = ComputingRockerPositionPoint(centerPoint, touchPoint, mAreaRadius, mRockerRadius);
+            moveRocker(point.x, point.y);
+        } else if (mRockerBackMode == RockerBackMode.BACK_CENTER_ORIGIN) {
+            moveRocker(centerPoint.x, centerPoint.y);
+        } else if (mRockerBackMode == RockerBackMode.BACK_X_AXIS) {
+            Point point = ComputingRockerPositionPoint(centerPoint, touchPoint, mAreaRadius, mRockerRadius);
+            moveRocker(point.x, centerPoint.y);
+        } else if (mRockerBackMode == RockerBackMode.BACK_Y_AXIS) {
+            Point point = ComputingRockerPositionPoint(centerPoint, touchPoint, mAreaRadius, mRockerRadius);
+            moveRocker(centerPoint.x, point.y);
+        }
+    }
+
+
+    /**
      * 监听移动
      *
      * @param centerPoint 中心点
      * @param touchPoint  触摸点
      */
     private void callBackMove(Point centerPoint, Point touchPoint) {
-        mRockerPosition = getRockerPositionPoint(centerPoint, touchPoint, mAreaRadius, mRockerRadius);
-        moveRocker(mRockerPosition.x, mRockerPosition.y);
+        Point point = ComputingRockerPositionPoint(centerPoint, touchPoint, mAreaRadius, mRockerRadius);
+        moveRocker(point.x, point.y);
     }
 
     /**
@@ -360,28 +386,28 @@ public class RockerView extends View {
      * @param rockerRadius 摇杆半径
      * @return 摇杆实际显示的位置（点）
      */
-    private Point getRockerPositionPoint(Point centerPoint, Point touchPoint, float regionRadius, float rockerRadius) {
+    private Point ComputingRockerPositionPoint(Point centerPoint, Point touchPoint, float regionRadius, float rockerRadius) {
         // 两点在X轴的距离
         float lenX = (float) (touchPoint.x - centerPoint.x);
         // 两点在Y轴距离
         float lenY = (float) (touchPoint.y - centerPoint.y);
         // 两点距离
         float lenXY = (float) Math.sqrt((double) (lenX * lenX + lenY * lenY));
-        RockerLog.i("getRockerPositionPoint: lenXY :" + lenXY);
+        RockerLog.i("ComputingRockerPositionPoint: lenXY :" + lenXY);
 
         // 摇杆有效活动距离
         float strangthLen = regionRadius - (rockerRadius * 2);
-        RockerLog.i("getRockerPositionPoint: strangthLen :" + strangthLen);
+        RockerLog.i("ComputingRockerPositionPoint: strangthLen :" + strangthLen);
 
         // 计算弧度
         double radian = Math.acos(lenX / lenXY) * (touchPoint.y < centerPoint.y ? -1 : 1);
-        RockerLog.i("getRockerPositionPoint: lenXY :" + radian);
+        RockerLog.i("ComputingRockerPositionPoint: lenXY :" + radian);
 
         //防止误触
         if (lenXY >= rockerRadius) {
             // 计算角度
             double angle = radian2Angle(radian);
-            RockerLog.i("getRockerPositionPoint: 角度 :" + angle);
+            RockerLog.i("ComputingRockerPositionPoint: 角度 :" + angle);
             // 回调 返回参数
             callBackShake(angle);
             float calcStrength = (lenXY - rockerRadius) / strangthLen;
@@ -772,22 +798,21 @@ public class RockerView extends View {
             if (null != mOnStrengthChangeListener) {
                 mOnStrengthChangeListener.onFinish();
             }
-
         }
     }
 
     /**
      * 判断点在摇杆中心区域内
      */
-    private boolean isInRockerCenterZone(Point centerPoint, Point touchPoint) {
+    private boolean isInRockerCenterZone(Point rockerPosition, Point touchPoint) {
         // 两点在X轴的距离
-        float lenX = (float) (touchPoint.x - centerPoint.x);
+        float lenX = (float) (touchPoint.x - rockerPosition.x);
         // 两点在Y轴距离
-        float lenY = (float) (touchPoint.y - centerPoint.y);
+        float lenY = (float) (touchPoint.y - rockerPosition.y);
         // 两点距离
         float lenXY = (float) Math.sqrt((double) (lenX * lenX + lenY * lenY));
         RockerLog.i("lenX  => " + lenX + " lenY => " + lenY + " mRockerRadius => " + mRockerRadius + " lenXY-Center = > " + lenXY);
-        if (lenXY < mRockerRadius / 2) {
+        if (lenXY < mRockerRadius / 3 * 2) {
             return true;
         } else {
             return false;
@@ -800,11 +825,24 @@ public class RockerView extends View {
      */
     public enum GestureMode {
         // 必须从中心开始连续响应
-        GESTURE_CONTINUOU,
+        GESTURE_CENTER_CONTINUOU,
         // 无需从中心开始连续响应,到达响应边界开始响应
-        GESTURE_UN_CONTINUOUS
+        GESTURE_UN_CENTER_CONTINUOUS
     }
 
+    /**
+     * 摇杆松开返回模式
+     */
+    public enum RockerBackMode {
+        // 不回退
+        BACK_NONE,
+        // 回到中心原点
+        BACK_CENTER_ORIGIN,
+        // 回到X轴
+        BACK_X_AXIS,
+        // 回到Y轴
+        BACK_Y_AXIS
+    }
 
     /**
      * 回调模式
@@ -1065,6 +1103,16 @@ public class RockerView extends View {
         }
     }
 
+    /**
+     * 设置松开摇杆后摇杆回退模式
+     *
+     * @param mode
+     */
+    public void setRockerBackMode(RockerBackMode mode) {
+        if (null != mode) {
+            this.mRockerBackMode = mode;
+        }
+    }
 
     /**
      * 添加摇杆摇动角度的监听
