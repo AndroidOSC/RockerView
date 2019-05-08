@@ -223,12 +223,12 @@ public class RockerView extends View {
         mAreaBackgroundPaint = new Paint();
         // 抗锯齿
         mAreaBackgroundPaint.setAntiAlias(true);
-
+        mAreaBackgroundPaint.setFilterBitmap(true);
         // 摇杆画笔
         mRockerPaint = new Paint();
         // 抗锯齿
         mRockerPaint.setAntiAlias(true);
-
+        mAreaBackgroundPaint.setFilterBitmap(true);
         // 中心点
         mCenterPoint = new Point(0, 0);
         // 摇杆位置

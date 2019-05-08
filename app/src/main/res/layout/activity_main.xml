@@ -32,8 +32,8 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="24dp"
-        app:areaBackground="@drawable/direction_disk"
-        app:rockerBackground="@drawable/direction_disk"
+        app:areaBackground="@drawable/view_big"
+        app:rockerBackground="@drawable/view_small"
         app:rockerRadius="30dp" />
 
 </LinearLayout>

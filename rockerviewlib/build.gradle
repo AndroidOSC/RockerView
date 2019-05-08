@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply from: 'bintray.gradle'
+
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
@@ -20,8 +22,6 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    apply from: 'bintray.gradle'
 }
 
 dependencies {
